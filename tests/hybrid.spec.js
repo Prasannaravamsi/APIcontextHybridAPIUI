@@ -70,7 +70,6 @@ test("Reconcile the booking detail page and cancel through the API", async ({ pa
     await injectTokenBeforeNavigation(page, token)
     await page.goto("/bookings")
     const selectedRRef = await findBookingCardByRef(page, reference)
-    await page.pause()
     await selectedRRef.locator("button:has-text('View Details')").click()
     await page.waitForURL("https://eventhub.rahulshettyacademy.com/bookings/" + bookingId)
     const endURL = await page.url().split(".com")[1].trim()
