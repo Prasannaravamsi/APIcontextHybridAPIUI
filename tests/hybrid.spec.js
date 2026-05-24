@@ -21,8 +21,8 @@ let selectedEventFields = ""
 let expectedTotalAmount = ""
 let ticketQuantity = ""
 let parsedBookingResp = ""
-
-test.beforeAll(async ({playwright}) => {
+test.describe.configure({ mode: "serial" })
+test.beforeAll(async ({ playwright }) => {
     authorizedApiContext = await createAuthorizedApiContext(playwright, "prasannarao.leo@gmail.com", "Dvithi@123456")
     apiContext = authorizedApiContext.authapiContext
     token = authorizedApiContext.token
@@ -87,7 +87,7 @@ test("Reconcile the booking detail page and cancel through the API", async ({ pa
     const ticketPrice = await page.locator("div.flex").filter({ hasText: "Total Paid" }).locator("span.font-bold").textContent()
     await expect(parseCurrency(ticketPrice.replace(",", ""))).toBe(parseInt(expectedTotalAmount))
     await expect(page.locator("div.flex").filter({ hasText: "Email" }).locator("span.font-medium")).toHaveText(parsedBookingResp.data.customerEmail)
-    const resp = await apiContext.delete("bookings/"+bookingId,{
+    const resp = await apiContext.delete("bookings/" + bookingId, {
         // headers:{
         //     'Authorization': "Bearer " + token,
         //     'Content-type': "application/json"
@@ -96,15 +96,15 @@ test("Reconcile the booking detail page and cancel through the API", async ({ pa
     console.log(resp)
     await expect(resp).toBeOK()
     try {
-    await lookupBookingByRef(apiContext, bookingId)
-     throw new Error("Booking exits")
-     } catch (error) {
-    // Expected: booking not found
-    //console.log(error.message)
-    expect(error.message).toContain("404")
-}
+        await lookupBookingByRef(apiContext, bookingId)
+        throw new Error("Booking exits")
+    } catch (error) {
+        // Expected: booking not found
+        //console.log(error.message)
+        expect(error.message).toContain("404")
+    }
     await page.goto("/bookings")
-    const bookingCard=await findBookingCardByRef(page, reference)
+    const bookingCard = await findBookingCardByRef(page, reference)
     await expect(bookingCard).toHaveCount(0)
     await apiContext.dispose()
 })
